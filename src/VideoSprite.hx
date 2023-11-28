@@ -42,13 +42,14 @@ class VideoSprite extends FlxSprite
 	}
 
 	private var oneTime:Bool = false;
+	var graphic:FlxGraphic;
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
 
 		if (bitmap.isPlaying && bitmap.isDisplaying && bitmap.bitmapData != null && !oneTime)
 		{
-			var graphic:FlxGraphic;
+			
 			/*
 			if (graphic.imageFrame.frame == null)
 			{
