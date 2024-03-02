@@ -1,8 +1,10 @@
-package;
+package hxcodec;
 
+import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.FlxGraphic;
 import flixel.util.FlxColor;
+import VideoHandler;
 
 /**
  * This class allows you to play videos using sprites (FlxSprite).
@@ -12,9 +14,9 @@ class VideoSprite extends FlxSprite
 	public var bitmap:VideoHandler;
 	public var canvasWidth:Null<Int>;
 	public var canvasHeight:Null<Int>;
-	public var fillScreen:Bool = false;
 
 	public var openingCallback:Void->Void = null;
+	public var graphicLoadedCallback:Void->Void = null;
 	public var finishCallback:Void->Void = null;
 
 	public function new(X:Float = 0, Y:Float = 0)
@@ -25,7 +27,7 @@ class VideoSprite extends FlxSprite
 
 		bitmap = new VideoHandler();
 		bitmap.canUseAutoResize = false;
-		bitmap.alpha = 0;
+		bitmap.visible = false;
 		bitmap.openingCallback = function()
 		{
 			if (openingCallback != null)
@@ -34,6 +36,7 @@ class VideoSprite extends FlxSprite
 		bitmap.finishCallback = function()
 		{
 			oneTime = false;
+
 			if (finishCallback != null)
 				finishCallback();
 
@@ -48,24 +51,26 @@ class VideoSprite extends FlxSprite
 
 		if (bitmap.isPlaying && bitmap.isDisplaying && bitmap.bitmapData != null && !oneTime)
 		{
-			
-			
+			var graphic:FlxGraphic = FlxG.bitmap.add(bitmap.bitmapData, false, bitmap.mrl);
 			if (graphic.imageFrame.frame == null)
 			{
+				#if HXC_DEBUG_TRACE
 				trace('the frame of the image is null?');
+				#end
 				return;
 			}
-                        
-                        graphic.bitmap = bitmap.bitmapData;
+
 			loadGraphic(graphic);
+
 			if (canvasWidth != null && canvasHeight != null)
 			{
 				setGraphicSize(canvasWidth, canvasHeight);
 				updateHitbox();
-
-				var size:Float = (fillScreen ? Math.max : Math.min)(scale.x, scale.y);
-				scale.set(size, size); // lol
 			}
+
+			if (graphicLoadedCallback != null)
+				graphicLoadedCallback();
+
 			oneTime = true;
 		}
 	}
