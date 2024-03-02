@@ -1,5 +1,6 @@
 package;
 
+import flixel.input.keyboard.FlxKey;
 import flixel.FlxG;
 import openfl.Lib;
 import openfl.events.Event;
@@ -12,6 +13,8 @@ import vlc.VLCBitmap;
  */
 class VideoHandler extends VLCBitmap
 {
+	public var skipKeys:Array<FlxKey> = [FlxKey.SPACE];
+
 	public var canSkip:Bool = true;
 	public var canUseSound:Bool = true;
 	public var canUseAutoResize:Bool = true;
@@ -34,7 +37,13 @@ class VideoHandler extends VLCBitmap
 
 	private function onVLCOpening():Void 
 	{        
+		#if HXC_DEBUG_TRACE
 		trace("the video is opening!");
+		#end
+
+		// The Media Player isn't `null at this point...
+		volume = Std.int(#if FLX_SOUND_SYSTEM ((FlxG.sound.muted || !canUseSound) ? 0 : 1) * #else (!canUseSound ? 0 : 1) * #end FlxG.sound.volume * 100);
+
 		if (openingCallback != null)
 		    openingCallback();
 	}
@@ -47,7 +56,9 @@ class VideoHandler extends VLCBitmap
 
 	private function onVLCEndReached():Void
 	{
+		#if HXC_DEBUG_TRACE
 		trace("the video reached the end!");
+		#end
 
 		if (FlxG.sound.music != null && pauseMusic)
 			FlxG.sound.music.resume();
@@ -86,9 +97,6 @@ class VideoHandler extends VLCBitmap
 		if (FlxG.sound.music != null && PauseMusic)
 			FlxG.sound.music.pause();
 
-		// Probably won't help with anything but ok.
-		volume = Std.int(#if FLX_SOUND_SYSTEM ((FlxG.sound.muted || !canUseSound) ? 0 : 1) * #end FlxG.sound.volume * 100);
-
 		FlxG.stage.addEventListener(Event.ENTER_FRAME, update);
 
 		if (FlxG.autoPause)
@@ -108,7 +116,7 @@ class VideoHandler extends VLCBitmap
 	private function update(?E:Event):Void
 	{
 		#if FLX_KEYBOARD
-		if (canSkip && (FlxG.keys.justPressed.SPACE #if android || FlxG.android.justReleased.BACK #end) && (isPlaying && isDisplaying))
+		if (canSkip && (FlxG.keys.anyJustPressed(skipKeys) #if android || FlxG.android.justReleased.BACK #end) && (isPlaying && isDisplaying))
 			onVLCEndReached();
 		#elseif android
 		if (canSkip && FlxG.android.justReleased.BACK && (isPlaying && isDisplaying))
@@ -121,7 +129,7 @@ class VideoHandler extends VLCBitmap
 			height = calcSize(1);
 		}
 
-		volume = Std.int(#if FLX_SOUND_SYSTEM ((FlxG.sound.muted || !canUseSound) ? 0 : 1) * #end FlxG.sound.volume * 100);
+		volume = Std.int(#if FLX_SOUND_SYSTEM ((FlxG.sound.muted || !canUseSound) ? 0 : 1) * #else (!canUseSound ? 0 : 1) * #end FlxG.sound.volume * 100);
 	}
 
 	public function calcSize(Ind:Int):Int
