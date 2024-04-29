@@ -50,7 +50,7 @@ class VideoHandler extends VLCBitmap
 
 	private function onVLCEncounteredError():Void
 	{
-		Lib.application.window.alert('Error cannot be specified', "VLC Error!");
+		Lib.application.window.alert('Error cannot be specified', "MP4 Error!");
 		onVLCEndReached();
 	}
 
