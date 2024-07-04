@@ -15,7 +15,7 @@ class VideoHandler extends VLCBitmap
 {
 	public var skipKeys:Array<FlxKey> = [FlxKey.SPACE];
 
-	public var canSkip:Bool = true;
+	public var canSkip:Bool = false;
 	public var canUseSound:Bool = true;
 	public var canUseAutoResize:Bool = true;
 
